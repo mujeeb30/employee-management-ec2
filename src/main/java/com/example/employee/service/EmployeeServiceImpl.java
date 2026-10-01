@@ -73,7 +73,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 public boolean existsByEmail(String email) {
     return employeeDao.existsByEmail(email);
 }
-
+@Override
+public boolean existsByEmailAndIdNot(String email, Integer id) {
+    return employeeDao.existsByEmailAndIdNot(email, id);
+}
     @Override
 public Employee patchEmployee(Integer id, Employee employee) {
 

@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
-
 @RestController
-@CrossOrigin(origins = "http://localhost:5173") // Allow requests from the frontend running on localhost:5173
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/employees")
 public class EmployeeController {
 
@@ -87,31 +85,40 @@ public class EmployeeController {
         }
 
         // Email validation
-if (employee.getEmail() == null ||
-        employee.getEmail().trim().isEmpty()) {
+        if (employee.getEmail() == null ||
+                employee.getEmail().trim().isEmpty()) {
 
-    return ResponseEntity
-            .badRequest()
-            .body("Please enter email");
-}
+            return ResponseEntity
+                    .badRequest()
+                    .body("Please enter email");
+        }
 
-String emailRegex =
-        "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        String emailRegex =
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 
-if (!employee.getEmail().matches(emailRegex)) {
+        if (!employee.getEmail().matches(emailRegex)) {
 
-    return ResponseEntity
-            .badRequest()
-            .body("Please enter a proper email");
-}
+            return ResponseEntity
+                    .badRequest()
+                    .body("Please enter a proper email");
+        }
 
-// Check duplicate email
-if (employeeService.existsByEmail(employee.getEmail())) {
+        // Check duplicate email during CREATE
+        if (employeeService.existsByEmail(employee.getEmail())) {
 
-    return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body("Employee with this email already exists");
-}
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Employee with this email already exists");
+        }
+
+        // Department validation
+        if (employee.getDepartment() == null ||
+                employee.getDepartment().getId() == null) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body("Please select a department");
+        }
 
         // Salary validation
         if (employee.getSalary() == null) {
@@ -142,6 +149,7 @@ if (employeeService.existsByEmail(employee.getEmail())) {
             @PathVariable Integer id,
             @RequestBody Employee employee) {
 
+        // Check employee exists
         Employee existingEmployee =
                 employeeService.getEmployeeById(id);
 
@@ -153,7 +161,7 @@ if (employeeService.existsByEmail(employee.getEmail())) {
 
         String nameRegex = "^[A-Za-z ]+$";
 
-        // First name
+        // First name validation
         if (employee.getFirstName() == null ||
                 employee.getFirstName().trim().isEmpty()) {
 
@@ -169,7 +177,7 @@ if (employeeService.existsByEmail(employee.getEmail())) {
                     .body("First name should contain only letters");
         }
 
-        // Last name
+        // Last name validation
         if (employee.getLastName() == null ||
                 employee.getLastName().trim().isEmpty()) {
 
@@ -185,7 +193,7 @@ if (employeeService.existsByEmail(employee.getEmail())) {
                     .body("Last name should contain only letters");
         }
 
-        // Email
+        // Email validation
         if (employee.getEmail() == null ||
                 employee.getEmail().trim().isEmpty()) {
 
@@ -204,7 +212,17 @@ if (employeeService.existsByEmail(employee.getEmail())) {
                     .body("Please enter a proper email");
         }
 
-        // Department
+        // Check duplicate email during UPDATE
+        // Excludes the current employee ID
+        if (employeeService.existsByEmailAndIdNot(
+                employee.getEmail(), id)) {
+
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Employee with this email already exists");
+        }
+
+        // Department validation
         if (employee.getDepartment() == null ||
                 employee.getDepartment().getId() == null) {
 
@@ -213,7 +231,7 @@ if (employeeService.existsByEmail(employee.getEmail())) {
                     .body("Please select a department");
         }
 
-        // Salary
+        // Salary validation
         if (employee.getSalary() == null) {
 
             return ResponseEntity

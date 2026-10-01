@@ -19,4 +19,6 @@ public interface EmployeeService {
     boolean existsByEmail(String email);
 
     void deleteEmployee(Integer id);
+
+    boolean existsByEmailAndIdNot(String email, Integer id);
 }
